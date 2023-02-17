@@ -1,12 +1,35 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+
 const List = () => {
 	// Variables para almacenar informacion
 	const [imputText, setImputText] = useState("");
 	const [TodoList, setTodoList] = useState([]);
+	useEffect(() => {
+		// Update the document title using the browser API
+		getitem()
+	  },[]); 
 	// funcion para añadir texto
 	const addText = (text) => {
-		let newText = [...TodoList, text];
-		setTodoList(newText);
+		fetch('https://assets.breatheco.de/apis/fake/todos/user/steph123123', {
+      method: "PUT",
+	  body: JSON.stringify([...TodoList, {"label":text,"done":false}]),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(resp => {
+        
+        return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
+    })
+    .then(data => {
+        //here is were your code should start after the fetch finishes
+        setTodoList([...TodoList, {"label":text, "done":false}]); //this will print on the console the exact object received from the server
+    })
+    .catch(error => {
+        //error handling
+        console.log(error);
+    });
+		console.log(TodoList)
 	};
 	// funcion para condicionar el input a lo que queremos
 	const handleKey = (event) => {
@@ -20,7 +43,48 @@ const List = () => {
 		setTodoList((prevState) =>
 			prevState.filter((item, index) => index !== indexItem)
 		);
+		fetch('https://assets.breatheco.de/apis/fake/todos/user/steph123123', {
+      method: "PUT",
+	  body: JSON.stringify(TodoList),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+	.then(resp => {
+        
+        return resp.json(); 
+    })
+    .then(data => {
+        
+       
+    })
+    .catch(error => {
+        //error handling
+        console.log(error);
+    });
+	
+
 	};
+	const getitem = () => {
+		fetch('https://assets.breatheco.de/apis/fake/todos/user/steph123123', {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(resp => {
+        
+        return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
+    })
+    .then(data => {
+        //here is were your code should start after the fetch finishes
+        setTodoList(data); //this will print on the console the exact object received from the server
+    })
+    .catch(error => {
+        //error handling
+        console.log(error);
+    });
+	}
 	return (
 		<div>
 			<div className="input mb-2 fs-5">
@@ -42,7 +106,7 @@ const List = () => {
 						<li
 							key={index}
 							className=" list-group-item mb-1 p-1 border border-dark d-flex justify-content-between">
-							{value}
+							{value.label}
 							<button
 								className="btn btn-outline-danger btn-sm DelItem"
 								onClick={() => DeleteItems(index)}>
